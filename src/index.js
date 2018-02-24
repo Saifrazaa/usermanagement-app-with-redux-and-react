@@ -15,7 +15,9 @@ var users = [];
           
         }
 var initial_state={
-    users:users
+    users:{
+    list:users
+    }
 }
 var store=createStore(reducers,initial_state);
 ReactDom.render(

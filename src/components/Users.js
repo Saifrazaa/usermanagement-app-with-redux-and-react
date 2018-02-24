@@ -1,12 +1,35 @@
 import React from "react";
 import { connect } from "react-redux";
-import { Table } from "react-bootstrap";
-import UserList from "./UserList";
+import { Table, Button, Glyphicon,Modal } from "react-bootstrap";
+import {bindActionCreators} from "redux";
 
-class Users extends React.Component{
-  
-     render(){
-        
+import {deleteuseraction} from "../actions/deleteuseraction";
+
+
+class Users extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            show: false,
+            user_id: "",
+            username:""
+        }
+       
+    }
+    deletepropmt(event) {
+       var username=event.target.dataset.username;
+       var user_id=Number(event.target.dataset.id);
+       console.log(username , user_id);
+       
+        this.setState({ show: true ,username:username ,user_id :user_id })
+
+    }
+    hidedeleteprompt(){
+        this.setState({show:false});
+    }
+   
+    render() {
+
         return (
             <div>
                 <Table bordered hover striped responsive>
@@ -16,26 +39,58 @@ class Users extends React.Component{
                         </tr>
                     </thead>
                     <tbody>
-                        {this.props.users.map((users,index) => {
+                        {this.props.users.map((users, index) => {
                             return (
-                                <UserList key={users.id} users={users} />
+                                <tr key={users.id}>
+                                    <td>{users.id}</td>
+                                    <td>{users.username}</td>
+                                    <td>{users.job}</td>
+                                    <td><a href={"/edit_user/" + users.id}>
+                                        <Button  bsStyle="primary">
+                                            Edit <Glyphicon glyph="edit" />
+                                        </Button>
+                                    </a></td>
+                                    <td>
+                                       <Button  bsStyle="danger" data-id={users.id} data-username={users.username} onClick={this.deletepropmt.bind(this)}>
+                                            Delete <Glyphicon glyph="remove-circle" />
+                                        </Button>
+                                    </td>
+                                </tr>
                             )
 
                         })}
                     </tbody>
                 </Table>
-                
+                <div>
+
+                    <Modal show={this.state.show}>
+                        <Modal.Header>
+                            <Modal.Title>
+                                Are You Sure You Want To Delete <strong>{this.state.username}</strong>
+                            </Modal.Title>
+                        </Modal.Header>
+                        <Modal.Footer>
+                            <Button  bsStyle="primary" onClick={this.hidedeleteprompt.bind(this)}>No</Button>
+       
+                            <Button bsStyle="danger" onClick={this.props.deleteuseraction.bind(this,this.state.user_id,this.state.username)}>Yes</Button>
+                        </Modal.Footer>
+                    </Modal>
+                </div>
             </div>
         )
     }
 
 }
 
-function mapStateToProps(state){
-    console.log(state.users);
-    
+function mapStateToProps(state) {
     return {
-        users:state.users
+        users: state.users.list
     }
 }
-export default connect(mapStateToProps)(Users);
+function mapDispatchToProps(dispatch){
+    
+    return bindActionCreators({
+        deleteuseraction:deleteuseraction
+    },dispatch)
+}
+export default connect(mapStateToProps,mapDispatchToProps)(Users);

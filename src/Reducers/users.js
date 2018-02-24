@@ -1,11 +1,15 @@
-export default function users(state={},action){
-    let map_state;
-    switch(action.type){
-        case "delete_user_prompt" :
-        console.log("action is triggering");
-        break;
-        default :
-        return state;
-    }
-    return state;
+export default function(state={},action){
+  switch(action.type){
+      case "DELETE_USER":
+      console.log(action.username)
+     for (const index in state.list){
+         if(state.list[index].id===action.user_id){
+             state.list.splice(index,1);
+         }
+     }
+      break;
+      default :
+      return state;
+  }
+  return state;
 }

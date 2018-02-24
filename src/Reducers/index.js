@@ -1,6 +1,6 @@
 import { combineReducers } from "redux";
 
-import {users} from "./users";
+import users from "./users";
 let reducers=combineReducers({
     users:users
 })
