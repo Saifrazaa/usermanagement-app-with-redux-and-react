@@ -1,6 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
-import { Table, Button, Glyphicon,Modal } from "react-bootstrap";
+import { push } from "react-router-redux";
+import { Table, Button, Glyphicon,Modal,Pagination } from "react-bootstrap";
 import {bindActionCreators} from "redux";
 
 import {deleteuseraction} from "../actions/deleteuseraction";
@@ -18,7 +19,7 @@ class Users extends React.Component {
         }
        
     }
-    deletepropmt(event) {
+    deleteprompt(event) {
        var username=event.target.dataset.username;
        var user_id=Number(event.target.dataset.id);
        console.log(username , user_id);
@@ -29,6 +30,7 @@ class Users extends React.Component {
     hidedeleteprompt(){
         this.setState({showdelete:false});
     }
+   
     hideeditpropmt(){
         this.setState({showedit:false});
     }
@@ -36,6 +38,7 @@ class Users extends React.Component {
         var user_id=Number(event.target.dataset.id);
         var username=event.target.dataset.username;
         var job=event.target.dataset.job;
+        
         this.setState({showedit:true,user_id:user_id,username:username,job:job});
     }
     usernameupdate(e){
@@ -47,7 +50,13 @@ class Users extends React.Component {
     }
    
     render() {
-
+        var per_page=10;
+        var pages=Math.ceil(this.props.users.length/per_page);
+        var page=this.props.page;
+        var off_set=(page-1) * per_page;
+        let start_count = 0;
+        console.log(pages);
+        var current_page=this.props.page;
         return (
             <div>
                 <Table bordered hover striped responsive>
@@ -58,27 +67,34 @@ class Users extends React.Component {
                     </thead>
                     <tbody>
                         {this.props.users.map((users, index) => {
-                            return (
-                                <tr key={users.id}>
-                                    <td>{users.id}</td>
-                                    <td>{users.username}</td>
-                                    <td>{users.job}</td>
-                                    <td>
-                                        <Button  bsStyle="primary" data-id={users.id} data-username={users.username} data-job={users.job} onClick={this.editprompt.bind(this)} >
+                            if(index>=off_set && start_count < per_page){
+                                return (
+                               
+                                    <tr key={users.id}>
+                                        <td>{users.id}</td>
+                                        <td>{users.username}</td>
+                                        <td>{users.job}</td>
+                                        <td>
+                                            <Button  bsStyle="primary" data-id={users.id} data-username={users.username} data-job={users.job} onClick={this.editprompt.bind(this)} >
                                             Edit <Glyphicon glyph="edit" />
-                                        </Button>
-                                    </td>
-                                    <td>
-                                       <Button  bsStyle="danger" data-id={users.id} data-username={users.username} onClick={this.deletepropmt.bind(this)}>
-                                            Delete <Glyphicon glyph="remove-circle" />
-                                        </Button>
-                                    </td>
-                                </tr>
-                            )
-
+                                            </Button>
+                                        </td>
+                                        <td>
+                                           <Button  bsStyle="danger" data-id={users.id}  data-username={users.username} onClick={this.deleteprompt.bind(this)}>
+                                                Delete <Glyphicon glyph="remove-circle" />
+                                            </Button>
+                                        </td>
+                                    </tr>
+                                )
+    
+                            }
+                            
+                             
                         })}
                     </tbody>
                 </Table>
+                <Pagination className="users-pagination pull-right" bsSize="medium" maxButtons={10} 
+                first last next prev boundaryLinks items={pages} activePage={current_page} onSelect={this.props.selectpage.bind(this,pages)} />
                 <div>
 
                     <Modal show={this.state.showdelete}>
@@ -91,6 +107,8 @@ class Users extends React.Component {
                             <Button  bsStyle="primary" onClick={this.hidedeleteprompt.bind(this)}>No</Button>
        
                             <Button bsStyle="danger" onClick={this.props.deleteuseraction.bind(this,this.state.user_id,this.state.username)}>Yes</Button>
+                           
+
                         </Modal.Footer>
                     </Modal>
                     
@@ -123,14 +141,21 @@ class Users extends React.Component {
 
 function mapStateToProps(state) {
     return {
-        users: state.users.list
+        users: state.users.list,
+        page : Number(state.routing.locationBeforeTransitions.query.page) || 1,
     }
 }
+function selectpage(page){
+    console.log(page);
+   return push("/?pages="+page)
+}
 function mapDispatchToProps(dispatch){
-    
+
     return bindActionCreators({
         deleteuseraction:deleteuseraction,
-        updateUserRecord:updateUserRecord
+        updateUserRecord:updateUserRecord,
+        selectpage:selectpage
     },dispatch)
 }
+
 export default connect(mapStateToProps,mapDispatchToProps)(Users);

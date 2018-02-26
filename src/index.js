@@ -5,7 +5,7 @@ import reducers from "./Reducers";
 import { createStore } from "redux";
 import { Provider } from "react-redux";
 var users = [];
-        for (let i = 1; i < 10; i++) {
+        for (let i = 0; i <30; i++) {
             users.push({
                 id: i,
                 username: "Saif " + i,
